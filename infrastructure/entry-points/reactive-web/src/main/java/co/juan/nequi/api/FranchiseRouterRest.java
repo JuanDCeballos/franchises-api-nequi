@@ -1,5 +1,6 @@
 package co.juan.nequi.api;
 
+import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.franchise.FranchiseRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,13 +45,13 @@ public class FranchiseRouterRest {
                                     @ApiResponse(
                                             responseCode = "400",
                                             description = "An error occurred while trying to save a franchise",
-                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
                                     )
                             }
                     )
             )
     })
-    public RouterFunction<ServerResponse> routerFunction(FranchiseHandler franchiseHandler) {
+    public RouterFunction<ServerResponse> routerFranchiseFunction(FranchiseHandler franchiseHandler) {
         return route(POST("/api/v1/franchise"), franchiseHandler::listenPOSTSaveFranchise);
     }
 }
