@@ -1,11 +1,13 @@
 package co.juan.nequi.api.exceptionhandler;
 
+import co.juan.nequi.model.exceptions.FranchiseNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.server.ServerWebInputException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,7 +29,8 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     }
 
     private int determineHttpStatus(Throwable error) {
-        if (error instanceof IllegalArgumentException || error instanceof ValidationException) {
+        if (error instanceof IllegalArgumentException || error instanceof ValidationException
+                || error instanceof FranchiseNotFoundException || error instanceof ServerWebInputException) {
             return HttpStatus.BAD_REQUEST.value();
         } else if (error instanceof IllegalStateException) {
             return HttpStatus.CONFLICT.value();

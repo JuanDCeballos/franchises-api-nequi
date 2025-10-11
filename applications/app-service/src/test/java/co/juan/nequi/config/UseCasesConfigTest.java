@@ -1,5 +1,6 @@
 package co.juan.nequi.config;
 
+import co.juan.nequi.model.branch.gateways.BranchRepository;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,6 +42,11 @@ public class UseCasesConfigTest {
         @Bean
         public FranchiseRepository franchiseRepository() {
             return Mockito.mock(FranchiseRepository.class);
+        }
+
+        @Bean
+        public BranchRepository branchRepository() {
+            return Mockito.mock(BranchRepository.class);
         }
     }
 

@@ -2,7 +2,7 @@ package co.juan.nequi.api;
 
 import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
-import co.juan.nequi.api.dto.franchise.FranchiseRequestDto;
+import co.juan.nequi.api.dto.branch.BranchRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,38 +20,39 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
-public class FranchiseRouterRest {
+public class BranchRouterRest {
+
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/franchise",
+                    path = "/api/v1/branch",
                     method = RequestMethod.POST,
-                    beanClass = FranchiseHandler.class,
-                    beanMethod = "listenPOSTSaveFranchise",
+                    beanClass = BranchHandler.class,
+                    beanMethod = "listenPOSTSaveBranch",
                     operation = @Operation(
-                            operationId = "saveFranchise",
-                            summary = "Endpoint to save a franchise",
+                            operationId = "saveBranch",
+                            summary = "Endpoint to save a branch",
                             requestBody = @RequestBody(
                                     required = true,
-                                    description = "Franchise information",
-                                    content = @Content(schema = @Schema(implementation = FranchiseRequestDto.class))
+                                    description = "Branch information",
+                                    content = @Content(schema = @Schema(implementation = BranchRequestDto.class))
                             ),
                             responses = {
                                     @ApiResponse(
                                             responseCode = "201",
-                                            description = "Franchise successfully saved",
+                                            description = "Branch successfully saved",
                                             content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
                                     ),
                                     @ApiResponse(
                                             responseCode = "400",
-                                            description = "An error occurred while trying to save a franchise",
+                                            description = "An error occurred while trying to save a branch",
                                             content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
                                     )
                             }
                     )
             )
     })
-    public RouterFunction<ServerResponse> routerFranchiseFunction(FranchiseHandler franchiseHandler) {
-        return route(POST("/api/v1/franchise"), franchiseHandler::listenPOSTSaveFranchise);
+    public RouterFunction<ServerResponse> routerBranchFunction(BranchHandler branchHandler) {
+        return route(POST("/api/v1/branch"), branchHandler::listenPOSTSaveBranch);
     }
 }
