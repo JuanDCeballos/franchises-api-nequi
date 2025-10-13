@@ -4,6 +4,8 @@ import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.product.BranchProductRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -50,9 +53,45 @@ public class ProductRouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/product/{idProduct}/branch/{idBranch}/delete",
+                    method = RequestMethod.DELETE,
+                    beanClass = ProductHandler.class,
+                    beanMethod = "listenDELETEProductFromBranch",
+                    operation = @Operation(
+                            operationId = "deleteProduct",
+                            summary = "Deletes a product from a specific branch",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idProduct",
+                                            description = "Id of a product",
+                                            required = true
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idBranch",
+                                            description = "Id of a branch",
+                                            required = true
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "204",
+                                            description = "Product successfully removed"
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "An error occurred while trying to delete a product",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerProductFunction(ProductHandler productHandler) {
-        return route(POST("/api/v1/product"), productHandler::listenPOSTSaveProduct);
+        return route(POST("/api/v1/product"), productHandler::listenPOSTSaveProduct)
+                .andRoute(DELETE("/api/v1/product/{idProduct}/branch/{idBranch}/delete"), productHandler::listenDELETEProductFromBranch);
     }
 }

@@ -26,6 +26,8 @@ class BranchProductUseCaseTest {
     BranchProductRepository branchProductRepository;
 
     private BranchProduct branchProduct;
+    private Long idBranch = 1L;
+    private Long idProduct = 1L;
 
     @BeforeEach
     void initMocks() {
@@ -51,5 +53,37 @@ class BranchProductUseCaseTest {
                 .verifyComplete();
 
         verify(branchProductRepository, times(1)).saveBranchProduct(any(BranchProduct.class));
+    }
+
+    @Test
+    void deleteProductFromBranch() {
+        when(branchProductRepository.findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong())).thenReturn(Mono.just(branchProduct));
+        when(branchProductRepository.deleteProductFromBranch(anyLong())).thenReturn(Mono.empty());
+
+        Mono<Void> response = branchProductUseCase.deleteProductFromBranch(idBranch, idProduct);
+
+        StepVerifier.create(response)
+                .verifyComplete();
+
+        verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong());
+        verify(branchProductRepository, times(1)).deleteProductFromBranch(anyLong());
+    }
+
+    @Test
+    void deleteProductFromBranchReturnExceptionWhenRelationDoesNotExists() {
+        when(branchProductRepository.findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong())).thenReturn(Mono.empty());
+
+        Mono<Void> response = branchProductUseCase.deleteProductFromBranch(idBranch, idProduct);
+
+        StepVerifier.create(response)
+                .expectError(IllegalArgumentException.class)
+                .verify();
+
+        verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong());
+        verify(branchProductRepository, times(0)).deleteProductFromBranch(anyLong());
     }
 }

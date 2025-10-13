@@ -23,4 +23,14 @@ public class BranchProductReactiveRepositoryAdapter extends ReactiveAdapterOpera
     public Mono<BranchProduct> saveBranchProduct(BranchProduct branchProduct) {
         return save(branchProduct);
     }
+
+    @Override
+    public Mono<BranchProduct> findRelationByIdBranchAndIdProduct(Long idBranch, Long idProduct) {
+        return repository.findByIdBranchAndIdProduct(idBranch, idProduct);
+    }
+
+    @Override
+    public Mono<Void> deleteProductFromBranch(Long idRelation) {
+        return repository.deleteById(idRelation);
+    }
 }
