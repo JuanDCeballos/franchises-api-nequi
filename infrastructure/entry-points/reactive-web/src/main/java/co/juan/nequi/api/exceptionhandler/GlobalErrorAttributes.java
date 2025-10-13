@@ -1,5 +1,6 @@
 package co.juan.nequi.api.exceptionhandler;
 
+import co.juan.nequi.model.exceptions.BranchNotFoundException;
 import co.juan.nequi.model.exceptions.FranchiseNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
@@ -30,8 +31,10 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
 
     private int determineHttpStatus(Throwable error) {
         if (error instanceof IllegalArgumentException || error instanceof ValidationException
-                || error instanceof FranchiseNotFoundException || error instanceof ServerWebInputException) {
+                || error instanceof ServerWebInputException) {
             return HttpStatus.BAD_REQUEST.value();
+        } else if (error instanceof FranchiseNotFoundException || error instanceof BranchNotFoundException) {
+            return HttpStatus.NOT_FOUND.value();
         } else if (error instanceof IllegalStateException) {
             return HttpStatus.CONFLICT.value();
         } else if (error instanceof RuntimeException) {
