@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 public interface BranchRepository {
 
     Mono<Branch> saveBranch(Branch branch);
+
+    Mono<Boolean> exitsBranchById(Long idBranch);
 }

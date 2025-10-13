@@ -23,4 +23,9 @@ public class BranchReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Branch> saveBranch(Branch branch) {
         return save(branch);
     }
+
+    @Override
+    public Mono<Boolean> exitsBranchById(Long idBranch) {
+        return repository.existsById(idBranch);
+    }
 }
