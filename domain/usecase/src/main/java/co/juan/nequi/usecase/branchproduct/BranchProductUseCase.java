@@ -19,4 +19,13 @@ public class BranchProductUseCase {
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("The product does not belong to that branch")))
                 .flatMap(branchProduct -> branchProductRepository.deleteProductFromBranch(branchProduct.getId()));
     }
+
+    public Mono<BranchProduct> updateProductStock(Long idBranch, Long idProduct, Long newStock) {
+        return branchProductRepository.findRelationByIdBranchAndIdProduct(idBranch, idProduct)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("The product does not belong to that branch")))
+                .flatMap(branchProduct -> {
+                    branchProduct.setStock(newStock);
+                    return branchProductRepository.saveBranchProduct(branchProduct);
+                });
+    }
 }

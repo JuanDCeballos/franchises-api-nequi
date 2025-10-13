@@ -3,6 +3,7 @@ package co.juan.nequi.api;
 import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.product.BranchProductRequestDto;
+import co.juan.nequi.api.dto.product.UpdateProductStockRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -18,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -88,10 +88,52 @@ public class ProductRouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/product/{idProduct}/branch/{idBranch}/stock",
+                    method = RequestMethod.PATCH,
+                    beanClass = ProductHandler.class,
+                    beanMethod = "listenPATCHUpdateProduct",
+                    operation = @Operation(
+                            operationId = "updateStock",
+                            summary = "Update product stock",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idProduct",
+                                            description = "Id of a product",
+                                            required = true
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idBranch",
+                                            description = "Id of a branch",
+                                            required = true
+                                    )
+                            },
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "Stock",
+                                    content = @Content(schema = @Schema(implementation = UpdateProductStockRequestDto.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Stock successfully updated",
+                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "An error occurred while trying to update a product stock",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerProductFunction(ProductHandler productHandler) {
         return route(POST("/api/v1/product"), productHandler::listenPOSTSaveProduct)
-                .andRoute(DELETE("/api/v1/product/{idProduct}/branch/{idBranch}/delete"), productHandler::listenDELETEProductFromBranch);
+                .andRoute(DELETE("/api/v1/product/{idProduct}/branch/{idBranch}/delete"), productHandler::listenDELETEProductFromBranch)
+                .andRoute(PATCH("/api/v1/product/{idProduct}/branch/{idBranch}/stock"), productHandler::listenPATCHUpdateProduct);
     }
 }

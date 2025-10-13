@@ -26,8 +26,9 @@ class BranchProductUseCaseTest {
     BranchProductRepository branchProductRepository;
 
     private BranchProduct branchProduct;
-    private Long idBranch = 1L;
-    private Long idProduct = 1L;
+    private final Long idBranch = 1L;
+    private final Long idProduct = 1L;
+    private final Long newStock = 9L;
 
     @BeforeEach
     void initMocks() {
@@ -85,5 +86,40 @@ class BranchProductUseCaseTest {
         verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(
                 anyLong(), anyLong());
         verify(branchProductRepository, times(0)).deleteProductFromBranch(anyLong());
+    }
+
+    @Test
+    void updateProductStock() {
+        when(branchProductRepository.findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong())).thenReturn(Mono.just(branchProduct));
+        when(branchProductRepository.saveBranchProduct(any(BranchProduct.class))).thenReturn(Mono.just(branchProduct));
+
+        Mono<BranchProduct> response = branchProductUseCase.updateProductStock(idBranch, idProduct, newStock);
+
+        StepVerifier.create(response)
+                .assertNext(res -> {
+                    assertNotNull(res);
+                    assertEquals(newStock, res.getStock());
+                })
+                .verifyComplete();
+
+        verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong());
+        verify(branchProductRepository, times(1)).saveBranchProduct(any(BranchProduct.class));
+    }
+
+    @Test
+    void updateProductStockReturnExceptionWhenRelationDoesNotExists() {
+        when(branchProductRepository.findRelationByIdBranchAndIdProduct(anyLong(), anyLong())).thenReturn(Mono.empty());
+
+        Mono<BranchProduct> response = branchProductUseCase.updateProductStock(idBranch, idProduct, newStock);
+
+        StepVerifier.create(response)
+                .expectError(IllegalArgumentException.class)
+                .verify();
+
+        verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(
+                anyLong(), anyLong());
+        verify(branchProductRepository, times(0)).saveBranchProduct(any(BranchProduct.class));
     }
 }

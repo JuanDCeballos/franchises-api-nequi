@@ -2,6 +2,7 @@ package co.juan.nequi.api;
 
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.product.BranchProductRequestDto;
+import co.juan.nequi.api.dto.product.UpdateProductStockRequestDto;
 import co.juan.nequi.api.mapper.ProductMapper;
 import co.juan.nequi.api.validation.ValidationService;
 import co.juan.nequi.usecase.branchproduct.BranchProductUseCase;
@@ -43,5 +44,20 @@ public class ProductHandler {
 
         return branchProductUseCase.deleteProductFromBranch(idBranch, idProduct)
                 .then(ServerResponse.noContent().build());
+    }
+
+    public Mono<ServerResponse> listenPATCHUpdateProduct(ServerRequest serverRequest) {
+        Long idProduct = Long.valueOf(serverRequest.pathVariable("idProduct"));
+        Long idBranch = Long.valueOf(serverRequest.pathVariable("idBranch"));
+
+        return serverRequest.bodyToMono(UpdateProductStockRequestDto.class)
+                .flatMap(validationService::validateObject)
+                .flatMap(validatedDto ->
+                        branchProductUseCase.updateProductStock(idBranch, idProduct, validatedDto.getStock()))
+                .flatMap(updatedProduct ->
+                        status(200)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(new ApiSuccessResponse<>(updatedProduct))
+                );
     }
 }
