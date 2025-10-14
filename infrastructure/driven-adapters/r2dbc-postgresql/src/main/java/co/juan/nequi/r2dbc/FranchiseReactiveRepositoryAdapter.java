@@ -28,4 +28,9 @@ public class FranchiseReactiveRepositoryAdapter extends ReactiveAdapterOperation
     public Mono<Boolean> existsFranchiseById(Long idFranchise) {
         return repository.existsById(idFranchise);
     }
+
+    @Override
+    public Mono<Franchise> findFranchiseById(Long idFranchise) {
+        return findById(idFranchise);
+    }
 }

@@ -8,4 +8,6 @@ public interface FranchiseRepository {
     Mono<Franchise> saveFranchise(Franchise franchise);
 
     Mono<Boolean> existsFranchiseById(Long idFranchise);
+
+    Mono<Franchise> findFranchiseById(Long idFranchise);
 }

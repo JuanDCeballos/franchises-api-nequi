@@ -64,4 +64,13 @@ public class FranchiseUseCase {
                             .build();
                 });
     }
+
+    public Mono<Franchise> updateFranchiseName(Long idFranchise, String newName) {
+        return franchiseRepository.findFranchiseById(idFranchise)
+                .switchIfEmpty(Mono.error(new FranchiseNotFoundException(idFranchise)))
+                .flatMap(franchiseToUpdate -> {
+                    franchiseToUpdate.setName(newName);
+                    return franchiseRepository.saveFranchise(franchiseToUpdate);
+                });
+    }
 }

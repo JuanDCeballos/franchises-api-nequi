@@ -2,6 +2,7 @@ package co.juan.nequi.api;
 
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.franchise.FranchiseRequestDto;
+import co.juan.nequi.api.dto.franchise.UpdateFranchiseNameRequestDto;
 import co.juan.nequi.api.mapper.FranchiseMapper;
 import co.juan.nequi.api.validation.ValidationService;
 import co.juan.nequi.dto.TopStockPerBranchDto;
@@ -51,5 +52,19 @@ public class FranchiseHandler {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resultMono, ApiSuccessResponse.class);
+    }
+
+    public Mono<ServerResponse> listenPATCHFranchiseName(ServerRequest serverRequest) {
+        Long idFranchise = Long.valueOf(serverRequest.pathVariable("idFranchise"));
+
+        return serverRequest.bodyToMono(UpdateFranchiseNameRequestDto.class)
+                .flatMap(validationService::validateObject)
+                .flatMap(validatedDto ->
+                        franchiseUseCase.updateFranchiseName(idFranchise, validatedDto.getName()))
+                .flatMap(updatedFranchise ->
+                        status(200)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(new ApiSuccessResponse<>(updatedFranchise))
+                );
     }
 }

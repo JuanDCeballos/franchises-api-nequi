@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -83,10 +82,41 @@ public class FranchiseRouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/franchise/{idFranchise}/name",
+                    method = RequestMethod.PATCH,
+                    beanClass = FranchiseHandler.class,
+                    beanMethod = "listenPATCHFranchiseName",
+                    operation = @Operation(
+                            operationId = "updateFranchiseName",
+                            summary = "Update franchise name",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idFranchise",
+                                            description = "Id of a franchise",
+                                            required = true
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Product name updated successfully",
+                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "An error occurred while trying to update products name",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFranchiseFunction(FranchiseHandler franchiseHandler) {
         return route(POST("/api/v1/franchise"), franchiseHandler::listenPOSTSaveFranchise)
-                .andRoute(GET("/api/v1/franchise/{idFranchise}/top-stock"), franchiseHandler::listenGETTopProductStockByBranch);
+                .andRoute(GET("/api/v1/franchise/{idFranchise}/top-stock"), franchiseHandler::listenGETTopProductStockByBranch)
+                .andRoute(PATCH("/api/v1/franchise/{idFranchise}/name"), franchiseHandler::listenPATCHFranchiseName);
     }
 }

@@ -45,6 +45,7 @@ class FranchiseUseCaseTest {
     ProductRepository productRepository;
 
     private final Long idFranchise = 1L;
+    private final String newName = "Mi Banco";
 
     private Franchise franchise;
     private Branch branch;
@@ -145,5 +146,37 @@ class FranchiseUseCaseTest {
         verify(branchRepository, times(1)).findBranchByIdFranchise(anyLong());
         verify(branchProductRepository, times(1)).findTopStockByIdBranch(anyLong());
         verify(productRepository, times(1)).findProductById(anyLong());
+    }
+
+    @Test
+    void updateFranchiseName() {
+        when(franchiseRepository.findFranchiseById(anyLong())).thenReturn(Mono.just(franchise));
+        when(franchiseRepository.saveFranchise(any(Franchise.class))).thenReturn(Mono.just(franchise));
+
+        Mono<Franchise> response = franchiseUseCase.updateFranchiseName(idFranchise, newName);
+
+        StepVerifier.create(response)
+                .assertNext(res -> {
+                    assertNotNull(res);
+                    assertEquals("Mi Banco", res.getName());
+                })
+                .verifyComplete();
+
+        verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
+        verify(franchiseRepository, times(1)).saveFranchise(any(Franchise.class));
+    }
+
+    @Test
+    void updateFranchiseNameReturnExceptionWhenFranchiseNotFound() {
+        when(franchiseRepository.findFranchiseById(anyLong())).thenReturn(Mono.empty());
+
+        Mono<Franchise> response = franchiseUseCase.updateFranchiseName(idFranchise, newName);
+
+        StepVerifier.create(response)
+                .expectError(FranchiseNotFoundException.class)
+                .verify();
+
+        verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
+        verify(franchiseRepository, times(0)).saveFranchise(any(Franchise.class));
     }
 }
