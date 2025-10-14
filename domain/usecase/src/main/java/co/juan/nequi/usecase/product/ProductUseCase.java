@@ -5,6 +5,7 @@ import co.juan.nequi.model.branch.gateways.BranchRepository;
 import co.juan.nequi.model.branchproduct.BranchProduct;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
 import co.juan.nequi.model.exceptions.BranchNotFoundException;
+import co.juan.nequi.model.exceptions.ProductNotFoundException;
 import co.juan.nequi.model.product.Product;
 import co.juan.nequi.model.product.gateways.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,15 @@ public class ProductUseCase {
                                                         savedBranchProduct.getIdBranch()
                                                 ));
                             });
+                });
+    }
+
+    public Mono<Product> updateProductName(Long idProduct, String newName) {
+        return productRepository.findProductById(idProduct)
+                .switchIfEmpty(Mono.error(new ProductNotFoundException(idProduct)))
+                .flatMap(productToUpdate -> {
+                    productToUpdate.setName(newName);
+                    return productRepository.saveProduct(productToUpdate);
                 });
     }
 }
