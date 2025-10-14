@@ -1,4 +1,4 @@
-package co.juan.nequi.model.exceptions;
+package co.juan.nequi.exceptions;
 
 public class FranchiseNotFoundException extends RuntimeException {
     public FranchiseNotFoundException(Long idFranchise) {

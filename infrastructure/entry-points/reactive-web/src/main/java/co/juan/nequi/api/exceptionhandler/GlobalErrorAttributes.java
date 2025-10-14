@@ -1,8 +1,8 @@
 package co.juan.nequi.api.exceptionhandler;
 
-import co.juan.nequi.model.exceptions.BranchNotFoundException;
-import co.juan.nequi.model.exceptions.FranchiseNotFoundException;
-import co.juan.nequi.model.exceptions.ProductNotFoundException;
+import co.juan.nequi.exceptions.BranchNotFoundException;
+import co.juan.nequi.exceptions.FranchiseNotFoundException;
+import co.juan.nequi.exceptions.ProductNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;

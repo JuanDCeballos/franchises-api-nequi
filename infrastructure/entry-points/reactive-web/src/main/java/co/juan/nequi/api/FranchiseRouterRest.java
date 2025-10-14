@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static co.juan.nequi.api.constants.FranchiseRoutes.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -28,7 +29,7 @@ public class FranchiseRouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/franchise",
+                    path = SAVE_FRANCHISE,
                     method = RequestMethod.POST,
                     beanClass = FranchiseHandler.class,
                     beanMethod = "listenPOSTSaveFranchise",
@@ -55,7 +56,7 @@ public class FranchiseRouterRest {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/franchise/{idFranchise}/top-stock",
+                    path = TOP_STOCK_BY_FRANCHISE,
                     method = RequestMethod.GET,
                     beanClass = FranchiseHandler.class,
                     beanMethod = "listenGETTopProductStockByBranch",
@@ -85,7 +86,7 @@ public class FranchiseRouterRest {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/franchise/{idFranchise}/name",
+                    path = UPDATE_FRANCHISE_NAME,
                     method = RequestMethod.PATCH,
                     beanClass = FranchiseHandler.class,
                     beanMethod = "listenPATCHFranchiseName",
@@ -121,8 +122,8 @@ public class FranchiseRouterRest {
             )
     })
     public RouterFunction<ServerResponse> routerFranchiseFunction(FranchiseHandler franchiseHandler) {
-        return route(POST("/api/v1/franchise"), franchiseHandler::listenPOSTSaveFranchise)
-                .andRoute(GET("/api/v1/franchise/{idFranchise}/top-stock"), franchiseHandler::listenGETTopProductStockByBranch)
-                .andRoute(PATCH("/api/v1/franchise/{idFranchise}/name"), franchiseHandler::listenPATCHFranchiseName);
+        return route(POST(SAVE_FRANCHISE), franchiseHandler::listenPOSTSaveFranchise)
+                .andRoute(GET(TOP_STOCK_BY_FRANCHISE), franchiseHandler::listenGETTopProductStockByBranch)
+                .andRoute(PATCH(UPDATE_FRANCHISE_NAME), franchiseHandler::listenPATCHFranchiseName);
     }
 }

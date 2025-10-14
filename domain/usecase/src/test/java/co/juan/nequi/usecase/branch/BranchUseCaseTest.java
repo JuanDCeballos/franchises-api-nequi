@@ -2,8 +2,8 @@ package co.juan.nequi.usecase.branch;
 
 import co.juan.nequi.model.branch.Branch;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
-import co.juan.nequi.model.exceptions.BranchNotFoundException;
-import co.juan.nequi.model.exceptions.FranchiseNotFoundException;
+import co.juan.nequi.exceptions.BranchNotFoundException;
+import co.juan.nequi.exceptions.FranchiseNotFoundException;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

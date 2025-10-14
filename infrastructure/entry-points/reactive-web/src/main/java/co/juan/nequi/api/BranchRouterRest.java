@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static co.juan.nequi.api.constants.BranchRoutes.SAVE_BRANCH;
+import static co.juan.nequi.api.constants.BranchRoutes.UPDATE_BRANCH_NAME;
 import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -29,7 +31,7 @@ public class BranchRouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/branch",
+                    path = SAVE_BRANCH,
                     method = RequestMethod.POST,
                     beanClass = BranchHandler.class,
                     beanMethod = "listenPOSTSaveBranch",
@@ -56,7 +58,7 @@ public class BranchRouterRest {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/branch/{idBranch}/name",
+                    path = UPDATE_BRANCH_NAME,
                     method = RequestMethod.PATCH,
                     beanClass = BranchHandler.class,
                     beanMethod = "listenPATCHBranchName",
@@ -92,7 +94,7 @@ public class BranchRouterRest {
             )
     })
     public RouterFunction<ServerResponse> routerBranchFunction(BranchHandler branchHandler) {
-        return route(POST("/api/v1/branch"), branchHandler::listenPOSTSaveBranch)
-                .andRoute(PATCH("/api/v1/branch/{idBranch}/name"), branchHandler::listenPATCHBranchName);
+        return route(POST(SAVE_BRANCH), branchHandler::listenPOSTSaveBranch)
+                .andRoute(PATCH(UPDATE_BRANCH_NAME), branchHandler::listenPATCHBranchName);
     }
 }
