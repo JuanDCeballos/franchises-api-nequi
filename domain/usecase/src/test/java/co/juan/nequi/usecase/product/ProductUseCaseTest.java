@@ -5,6 +5,7 @@ import co.juan.nequi.model.branch.gateways.BranchRepository;
 import co.juan.nequi.model.branchproduct.BranchProduct;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
 import co.juan.nequi.model.exceptions.BranchNotFoundException;
+import co.juan.nequi.model.exceptions.ProductNotFoundException;
 import co.juan.nequi.model.product.Product;
 import co.juan.nequi.model.product.gateways.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class ProductUseCaseTest {
 
     @Mock
     BranchRepository branchRepository;
+
+    private final Long idProduct = 1L;
+    private final String newName = "DrPepper";
 
     private BranchProduct branchProduct;
     private BranchProductDto branchProductDto;
@@ -96,5 +100,37 @@ class ProductUseCaseTest {
         verify(productRepository, times(0)).findProductByName(anyString());
         verify(productRepository, times(0)).saveProduct(any(Product.class));
         verify(branchProductRepository, times(0)).saveBranchProduct(any(BranchProduct.class));
+    }
+
+    @Test
+    void updateProductName() {
+        when(productRepository.findProductById(anyLong())).thenReturn(Mono.just(product));
+        when(productRepository.saveProduct(any(Product.class))).thenReturn(Mono.just(product));
+
+        Mono<Product> response = productUseCase.updateProductName(idProduct, newName);
+
+        StepVerifier.create(response)
+                .assertNext(dto -> {
+                    assertNotNull(dto);
+                    assertEquals("DrPepper", dto.getName());
+                })
+                .verifyComplete();
+
+        verify(productRepository, times(1)).findProductById(anyLong());
+        verify(productRepository, times(1)).saveProduct(any(Product.class));
+    }
+
+    @Test
+    void updateProductNameReturnExceptionWhenProductNotFound() {
+        when(productRepository.findProductById(anyLong())).thenReturn(Mono.empty());
+
+        Mono<Product> response = productUseCase.updateProductName(idProduct, newName);
+
+        StepVerifier.create(response)
+                .expectError(ProductNotFoundException.class)
+                .verify();
+
+        verify(productRepository, times(1)).findProductById(anyLong());
+        verify(productRepository, times(0)).saveProduct(any(Product.class));
     }
 }

@@ -3,6 +3,7 @@ package co.juan.nequi.api;
 import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.product.BranchProductRequestDto;
+import co.juan.nequi.api.dto.product.UpdateProductNameRequestDto;
 import co.juan.nequi.api.dto.product.UpdateProductStockRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -129,11 +130,47 @@ public class ProductRouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/product/{idProduct}/name",
+                    method = RequestMethod.PATCH,
+                    beanClass = ProductHandler.class,
+                    beanMethod = "/api/v1/product/{idProduct}/name",
+                    operation = @Operation(
+                            operationId = "updateProductName",
+                            summary = "Endpoint to update a product name",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idProduct",
+                                            description = "Id of a product",
+                                            required = true
+                                    )
+                            },
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "New name of a product",
+                                    content = @Content(schema = @Schema(implementation = UpdateProductNameRequestDto.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Product name successfully updated",
+                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "An error occurred while trying to update a product name",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerProductFunction(ProductHandler productHandler) {
         return route(POST("/api/v1/product"), productHandler::listenPOSTSaveProduct)
                 .andRoute(DELETE("/api/v1/product/{idProduct}/branch/{idBranch}/delete"), productHandler::listenDELETEProductFromBranch)
-                .andRoute(PATCH("/api/v1/product/{idProduct}/branch/{idBranch}/stock"), productHandler::listenPATCHUpdateProduct);
+                .andRoute(PATCH("/api/v1/product/{idProduct}/branch/{idBranch}/stock"), productHandler::listenPATCHUpdateProduct)
+                .andRoute(PATCH("/api/v1/product/{idProduct}/name"), productHandler::listenPATCHUpdateProductName);
     }
 }
