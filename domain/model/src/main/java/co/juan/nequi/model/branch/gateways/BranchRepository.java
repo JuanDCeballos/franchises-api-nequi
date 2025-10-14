@@ -11,4 +11,6 @@ public interface BranchRepository {
     Mono<Boolean> exitsBranchById(Long idBranch);
 
     Flux<Branch> findBranchByIdFranchise(Long idFranchise);
+
+    Mono<Branch> findBranchById(Long idBranch);
 }

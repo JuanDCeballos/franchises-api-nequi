@@ -2,6 +2,7 @@ package co.juan.nequi.usecase.branch;
 
 import co.juan.nequi.model.branch.Branch;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
+import co.juan.nequi.model.exceptions.BranchNotFoundException;
 import co.juan.nequi.model.exceptions.FranchiseNotFoundException;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,15 @@ public class BranchUseCase {
                     }
 
                     return branchRepository.saveBranch(branch);
+                });
+    }
+
+    public Mono<Branch> updateBranchName(Long idBranch, String newName) {
+        return branchRepository.findBranchById(idBranch)
+                .switchIfEmpty(Mono.error(new BranchNotFoundException(idBranch)))
+                .flatMap(branchToUpdate -> {
+                    branchToUpdate.setName(newName);
+                    return branchRepository.saveBranch(branchToUpdate);
                 });
     }
 }

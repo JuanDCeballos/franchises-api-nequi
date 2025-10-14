@@ -34,4 +34,9 @@ public class BranchReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Flux<Branch> findBranchByIdFranchise(Long idFranchise) {
         return repository.findByIdFranchise(idFranchise);
     }
+
+    @Override
+    public Mono<Branch> findBranchById(Long idBranch) {
+        return findById(idBranch);
+    }
 }

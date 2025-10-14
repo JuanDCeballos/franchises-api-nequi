@@ -3,7 +3,10 @@ package co.juan.nequi.api;
 import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.branch.BranchRequestDto;
+import co.juan.nequi.api.dto.branch.UpdateBranchNameRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -50,9 +54,45 @@ public class BranchRouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/branch/{idBranch}/name",
+                    method = RequestMethod.PATCH,
+                    beanClass = BranchHandler.class,
+                    beanMethod = "listenPATCHBranchName",
+                    operation = @Operation(
+                            operationId = "updateBranchName",
+                            summary = "Endpoint to update a branch name",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idBranch",
+                                            description = "Id of a branch",
+                                            required = true
+                                    )
+                            },
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "Branch new name",
+                                    content = @Content(schema = @Schema(implementation = UpdateBranchNameRequestDto.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Branch name successfully updated",
+                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "An error occurred while trying to update a branch name",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerBranchFunction(BranchHandler branchHandler) {
-        return route(POST("/api/v1/branch"), branchHandler::listenPOSTSaveBranch);
+        return route(POST("/api/v1/branch"), branchHandler::listenPOSTSaveBranch)
+                .andRoute(PATCH("/api/v1/branch/{idBranch}/name"), branchHandler::listenPATCHBranchName);
     }
 }

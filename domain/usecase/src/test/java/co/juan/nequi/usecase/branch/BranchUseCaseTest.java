@@ -2,6 +2,7 @@ package co.juan.nequi.usecase.branch;
 
 import co.juan.nequi.model.branch.Branch;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
+import co.juan.nequi.model.exceptions.BranchNotFoundException;
 import co.juan.nequi.model.exceptions.FranchiseNotFoundException;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -28,6 +31,9 @@ class BranchUseCaseTest {
 
     @Mock
     FranchiseRepository franchiseRepository;
+
+    private final Long idBranch = 1L;
+    private final String newName = "Mi Banco - Centro";
 
     private Branch branch;
 
@@ -65,6 +71,38 @@ class BranchUseCaseTest {
                 .verify();
 
         verify(franchiseRepository, times(1)).existsFranchiseById(anyLong());
+        verify(branchRepository, times(0)).saveBranch(any(Branch.class));
+    }
+
+    @Test
+    void updateBranchName() {
+        when(branchRepository.findBranchById(anyLong())).thenReturn(Mono.just(branch));
+        when(branchRepository.saveBranch(any(Branch.class))).thenReturn(Mono.just(branch));
+
+        Mono<Branch> response = branchUseCase.updateBranchName(idBranch, newName);
+
+        StepVerifier.create(response)
+                .assertNext(dto -> {
+                    assertNotNull(dto);
+                    assertEquals("Mi Banco - Centro", dto.getName());
+                })
+                .verifyComplete();
+
+        verify(branchRepository, times(1)).findBranchById(anyLong());
+        verify(branchRepository, times(1)).saveBranch(any(Branch.class));
+    }
+
+    @Test
+    void updateBranchNameReturnExceptionWhenBranchNotFound() {
+        when(branchRepository.findBranchById(anyLong())).thenReturn(Mono.empty());
+
+        Mono<Branch> response = branchUseCase.updateBranchName(idBranch, newName);
+
+        StepVerifier.create(response)
+                .expectError(BranchNotFoundException.class)
+                .verify();
+
+        verify(branchRepository, times(1)).findBranchById(anyLong());
         verify(branchRepository, times(0)).saveBranch(any(Branch.class));
     }
 }
