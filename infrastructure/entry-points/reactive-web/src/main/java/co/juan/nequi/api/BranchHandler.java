@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import static co.juan.nequi.api.constants.ApiConstants.ID_BRANCH_PATH_VARIABLE;
 import static org.springframework.web.reactive.function.server.ServerResponse.status;
 
 @Component
@@ -37,7 +38,7 @@ public class BranchHandler {
     }
 
     public Mono<ServerResponse> listenPATCHBranchName(ServerRequest serverRequest) {
-        Long idBranch = Long.valueOf(serverRequest.pathVariable("idBranch"));
+        Long idBranch = Long.valueOf(serverRequest.pathVariable(ID_BRANCH_PATH_VARIABLE));
 
         return serverRequest.bodyToMono(UpdateBranchNameRequestDto.class)
                 .flatMap(validationService::validateObject)

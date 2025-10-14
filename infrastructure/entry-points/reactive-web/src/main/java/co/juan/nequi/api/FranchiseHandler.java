@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static co.juan.nequi.api.constants.FranchiseRoutes.ID_FRANCHISE_PATH_VARIABLE;
 import static org.springframework.web.reactive.function.server.ServerResponse.status;
 
 @Component
@@ -41,13 +42,13 @@ public class FranchiseHandler {
     }
 
     public Mono<ServerResponse> listenGETTopProductStockByBranch(ServerRequest serverRequest) {
-        Long idFranchise = Long.valueOf(serverRequest.pathVariable("idFranchise"));
+        Long idFranchise = Long.valueOf(serverRequest.pathVariable(ID_FRANCHISE_PATH_VARIABLE));
 
         Flux<TopStockPerBranchDto> resultFlux = franchiseUseCase.findTopStockProductByBranch(idFranchise);
 
         Mono<ApiSuccessResponse<List<TopStockPerBranchDto>>> resultMono = resultFlux
                 .collectList()
-                .map(dtoList -> new ApiSuccessResponse<>(dtoList));
+                .map(ApiSuccessResponse::new);
 
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -55,7 +56,7 @@ public class FranchiseHandler {
     }
 
     public Mono<ServerResponse> listenPATCHFranchiseName(ServerRequest serverRequest) {
-        Long idFranchise = Long.valueOf(serverRequest.pathVariable("idFranchise"));
+        Long idFranchise = Long.valueOf(serverRequest.pathVariable(ID_FRANCHISE_PATH_VARIABLE));
 
         return serverRequest.bodyToMono(UpdateFranchiseNameRequestDto.class)
                 .flatMap(validationService::validateObject)

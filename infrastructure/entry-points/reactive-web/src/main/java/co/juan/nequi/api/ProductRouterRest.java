@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static co.juan.nequi.api.constants.ProductRoutes.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -29,7 +30,7 @@ public class ProductRouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/product",
+                    path = SAVE_PRODUCT,
                     method = RequestMethod.POST,
                     beanClass = ProductHandler.class,
                     beanMethod = "listenPOSTSaveProduct",
@@ -56,7 +57,7 @@ public class ProductRouterRest {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/product/{idProduct}/branch/{idBranch}/delete",
+                    path = DELETE_PRODUCT_FROM_BRANCH,
                     method = RequestMethod.DELETE,
                     beanClass = ProductHandler.class,
                     beanMethod = "listenDELETEProductFromBranch",
@@ -91,7 +92,7 @@ public class ProductRouterRest {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/product/{idProduct}/branch/{idBranch}/stock",
+                    path = UPDATE_PRODUCT_STOCK,
                     method = RequestMethod.PATCH,
                     beanClass = ProductHandler.class,
                     beanMethod = "listenPATCHUpdateProduct",
@@ -132,10 +133,10 @@ public class ProductRouterRest {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/product/{idProduct}/name",
+                    path = UPDATE_PRODUCT_NAME,
                     method = RequestMethod.PATCH,
                     beanClass = ProductHandler.class,
-                    beanMethod = "/api/v1/product/{idProduct}/name",
+                    beanMethod = "listenPATCHUpdateProductName",
                     operation = @Operation(
                             operationId = "updateProductName",
                             summary = "Endpoint to update a product name",
@@ -168,9 +169,9 @@ public class ProductRouterRest {
             )
     })
     public RouterFunction<ServerResponse> routerProductFunction(ProductHandler productHandler) {
-        return route(POST("/api/v1/product"), productHandler::listenPOSTSaveProduct)
-                .andRoute(DELETE("/api/v1/product/{idProduct}/branch/{idBranch}/delete"), productHandler::listenDELETEProductFromBranch)
-                .andRoute(PATCH("/api/v1/product/{idProduct}/branch/{idBranch}/stock"), productHandler::listenPATCHUpdateProduct)
-                .andRoute(PATCH("/api/v1/product/{idProduct}/name"), productHandler::listenPATCHUpdateProductName);
+        return route(POST(SAVE_PRODUCT), productHandler::listenPOSTSaveProduct)
+                .andRoute(DELETE(DELETE_PRODUCT_FROM_BRANCH), productHandler::listenDELETEProductFromBranch)
+                .andRoute(PATCH(UPDATE_PRODUCT_STOCK), productHandler::listenPATCHUpdateProduct)
+                .andRoute(PATCH(UPDATE_PRODUCT_NAME), productHandler::listenPATCHUpdateProductName);
     }
 }
