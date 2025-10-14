@@ -2,6 +2,7 @@ package co.juan.nequi.api;
 
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.branch.BranchRequestDto;
+import co.juan.nequi.api.dto.branch.UpdateBranchNameRequestDto;
 import co.juan.nequi.api.mapper.BranchMapper;
 import co.juan.nequi.api.validation.ValidationService;
 import co.juan.nequi.usecase.branch.BranchUseCase;
@@ -32,6 +33,20 @@ public class BranchHandler {
                         status(201)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(new ApiSuccessResponse<>(savedBranch))
+                );
+    }
+
+    public Mono<ServerResponse> listenPATCHBranchName(ServerRequest serverRequest) {
+        Long idBranch = Long.valueOf(serverRequest.pathVariable("idBranch"));
+
+        return serverRequest.bodyToMono(UpdateBranchNameRequestDto.class)
+                .flatMap(validationService::validateObject)
+                .flatMap(validatedDto ->
+                        branchUseCase.updateBranchName(idBranch, validatedDto.getName()))
+                .flatMap(updatedBranch ->
+                        status(200)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(new ApiSuccessResponse<>(updatedBranch))
                 );
     }
 }

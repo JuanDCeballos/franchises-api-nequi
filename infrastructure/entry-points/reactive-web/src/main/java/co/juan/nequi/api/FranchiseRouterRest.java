@@ -3,6 +3,7 @@ package co.juan.nequi.api;
 import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.franchise.FranchiseRequestDto;
+import co.juan.nequi.api.dto.franchise.UpdateFranchiseNameRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -99,10 +100,15 @@ public class FranchiseRouterRest {
                                             required = true
                                     )
                             },
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "Franchise new name",
+                                    content = @Content(schema = @Schema(implementation = UpdateFranchiseNameRequestDto.class))
+                            ),
                             responses = {
                                     @ApiResponse(
                                             responseCode = "200",
-                                            description = "Product name updated successfully",
+                                            description = "Product name successfully updated",
                                             content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
                                     ),
                                     @ApiResponse(
