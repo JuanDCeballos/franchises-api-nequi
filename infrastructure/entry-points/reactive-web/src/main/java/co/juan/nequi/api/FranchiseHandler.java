@@ -4,13 +4,17 @@ import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.franchise.FranchiseRequestDto;
 import co.juan.nequi.api.mapper.FranchiseMapper;
 import co.juan.nequi.api.validation.ValidationService;
+import co.juan.nequi.dto.TopStockPerBranchDto;
 import co.juan.nequi.usecase.franchise.FranchiseUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.status;
 
@@ -33,5 +37,19 @@ public class FranchiseHandler {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(new ApiSuccessResponse<>(savedFranchise))
                 );
+    }
+
+    public Mono<ServerResponse> listenGETTopProductStockByBranch(ServerRequest serverRequest) {
+        Long idFranchise = Long.valueOf(serverRequest.pathVariable("idFranchise"));
+
+        Flux<TopStockPerBranchDto> resultFlux = franchiseUseCase.findTopStockProductByBranch(idFranchise);
+
+        Mono<ApiSuccessResponse<List<TopStockPerBranchDto>>> resultMono = resultFlux
+                .collectList()
+                .map(dtoList -> new ApiSuccessResponse<>(dtoList));
+
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resultMono, ApiSuccessResponse.class);
     }
 }

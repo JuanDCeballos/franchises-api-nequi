@@ -33,4 +33,9 @@ public class BranchProductReactiveRepositoryAdapter extends ReactiveAdapterOpera
     public Mono<Void> deleteProductFromBranch(Long idRelation) {
         return repository.deleteById(idRelation);
     }
+
+    @Override
+    public Mono<BranchProduct> findTopStockByIdBranch(Long idBranch) {
+        return repository.findTopStockByIdBranch(idBranch);
+    }
 }
