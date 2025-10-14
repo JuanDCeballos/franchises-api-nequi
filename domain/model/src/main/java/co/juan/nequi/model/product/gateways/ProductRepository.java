@@ -8,4 +8,6 @@ public interface ProductRepository {
     Mono<Product> saveProduct(Product product);
 
     Mono<Product> findProductByName(String name);
+
+    Mono<Product> findProductById(Long idProduct);
 }

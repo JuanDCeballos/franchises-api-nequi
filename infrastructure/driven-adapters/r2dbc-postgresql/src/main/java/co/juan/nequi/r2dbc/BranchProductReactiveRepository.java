@@ -2,6 +2,7 @@ package co.juan.nequi.r2dbc;
 
 import co.juan.nequi.model.branchproduct.BranchProduct;
 import co.juan.nequi.r2dbc.entity.BranchProductEntity;
+import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
@@ -10,4 +11,9 @@ public interface BranchProductReactiveRepository extends ReactiveCrudRepository<
         ReactiveQueryByExampleExecutor<BranchProductEntity> {
 
     Mono<BranchProduct> findByIdBranchAndIdProduct(Long idBranch, Long idProduct);
+
+    @Query("SELECT * FROM branch_product " +
+            "WHERE id_branch = :idBranch " +
+            "ORDER BY stock DESC LIMIT 1")
+    Mono<BranchProduct> findTopStockByIdBranch(Long idBranch);
 }

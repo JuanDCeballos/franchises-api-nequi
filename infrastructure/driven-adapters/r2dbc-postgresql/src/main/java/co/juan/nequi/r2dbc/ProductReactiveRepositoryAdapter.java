@@ -28,4 +28,9 @@ public class ProductReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Product> findProductByName(String name) {
         return repository.findByName(name);
     }
+
+    @Override
+    public Mono<Product> findProductById(Long idProduct) {
+        return findById(idProduct);
+    }
 }

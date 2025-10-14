@@ -4,6 +4,8 @@ import co.juan.nequi.api.dto.ApiErrorResponse;
 import co.juan.nequi.api.dto.ApiSuccessResponse;
 import co.juan.nequi.api.dto.franchise.FranchiseRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -16,11 +18,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 public class FranchiseRouterRest {
+
     @Bean
     @RouterOperations({
             @RouterOperation(
@@ -49,9 +53,40 @@ public class FranchiseRouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/franchise/{idFranchise}/top-stock",
+                    method = RequestMethod.GET,
+                    beanClass = FranchiseHandler.class,
+                    beanMethod = "listenGETTopProductStockByBranch",
+                    operation = @Operation(
+                            operationId = "getTopProductStockByBranch",
+                            summary = "Endpoint to get top product stock by branch",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "idFranchise",
+                                            description = "Id of a franchise",
+                                            required = true
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Top product stock got successfully",
+                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "An error occurred while trying to get the top product stock",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFranchiseFunction(FranchiseHandler franchiseHandler) {
-        return route(POST("/api/v1/franchise"), franchiseHandler::listenPOSTSaveFranchise);
+        return route(POST("/api/v1/franchise"), franchiseHandler::listenPOSTSaveFranchise)
+                .andRoute(GET("/api/v1/franchise/{idFranchise}/top-stock"), franchiseHandler::listenGETTopProductStockByBranch);
     }
 }

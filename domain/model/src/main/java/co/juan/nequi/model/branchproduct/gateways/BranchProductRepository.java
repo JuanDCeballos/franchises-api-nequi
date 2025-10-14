@@ -10,4 +10,6 @@ public interface BranchProductRepository {
     Mono<BranchProduct> findRelationByIdBranchAndIdProduct(Long idBranch, Long idProduct);
 
     Mono<Void> deleteProductFromBranch(Long idRelation);
+
+    Mono<BranchProduct> findTopStockByIdBranch(Long idBranch);
 }
