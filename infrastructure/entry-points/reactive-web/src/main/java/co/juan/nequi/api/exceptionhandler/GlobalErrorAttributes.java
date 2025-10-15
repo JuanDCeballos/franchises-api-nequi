@@ -1,6 +1,7 @@
 package co.juan.nequi.api.exceptionhandler;
 
 import co.juan.nequi.exceptions.BranchNotFoundException;
+import co.juan.nequi.exceptions.BranchProductRelationException;
 import co.juan.nequi.exceptions.FranchiseNotFoundException;
 import co.juan.nequi.exceptions.ProductNotFoundException;
 import jakarta.validation.ValidationException;
@@ -35,7 +36,7 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
                 || error instanceof ServerWebInputException) {
             return HttpStatus.BAD_REQUEST.value();
         } else if (error instanceof FranchiseNotFoundException || error instanceof BranchNotFoundException
-                || error instanceof ProductNotFoundException) {
+                || error instanceof ProductNotFoundException || error instanceof BranchProductRelationException) {
             return HttpStatus.NOT_FOUND.value();
         } else if (error instanceof IllegalStateException) {
             return HttpStatus.CONFLICT.value();
