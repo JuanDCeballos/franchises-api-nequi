@@ -1,11 +1,13 @@
 package co.juan.nequi.r2dbc;
 
+import co.juan.nequi.dto.TopStockPerBranchDto;
 import co.juan.nequi.model.franchise.Franchise;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import co.juan.nequi.r2dbc.entity.FranchiseEntity;
 import co.juan.nequi.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -32,5 +34,10 @@ public class FranchiseReactiveRepositoryAdapter extends ReactiveAdapterOperation
     @Override
     public Mono<Franchise> findFranchiseById(Long idFranchise) {
         return findById(idFranchise);
+    }
+
+    @Override
+    public Flux<TopStockPerBranchDto> findTopStockProductByBranchForFranchise(Long idFranchise) {
+        return repository.findTopStockProductByBranchForFranchise(idFranchise);
     }
 }

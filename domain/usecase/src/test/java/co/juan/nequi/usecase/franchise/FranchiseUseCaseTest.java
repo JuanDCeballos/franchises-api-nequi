@@ -1,5 +1,6 @@
 package co.juan.nequi.usecase.franchise;
 
+import co.juan.nequi.dto.TopStockPerBranchDto;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
 import co.juan.nequi.exceptions.FranchiseNotFoundException;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -42,12 +44,20 @@ class FranchiseUseCaseTest {
     private final String newName = "Mi Banco";
 
     private Franchise franchise;
+    private TopStockPerBranchDto topStockPerBranchDto;
 
     @BeforeEach
     void initMocks() {
         franchise = new Franchise();
         franchise.setId(1L);
         franchise.setName("MiBanco");
+
+        topStockPerBranchDto = new TopStockPerBranchDto();
+        topStockPerBranchDto.setIdbranch(1L);
+        topStockPerBranchDto.setBranchname("ChefBurger");
+        topStockPerBranchDto.setIdproduct(1L);
+        topStockPerBranchDto.setProductname("Burger");
+        topStockPerBranchDto.setStock(6L);
     }
 
     @Test
@@ -61,6 +71,40 @@ class FranchiseUseCaseTest {
                 .verifyComplete();
 
         verify(franchiseRepository, times(1)).saveFranchise(any(Franchise.class));
+    }
+
+    @Test
+    void findTopStockProductByBranch() {
+        when(franchiseRepository.findFranchiseById(anyLong())).thenReturn(Mono.just(franchise));
+        when(franchiseRepository.findTopStockProductByBranchForFranchise(anyLong()))
+                .thenReturn(Flux.just(topStockPerBranchDto));
+
+        Flux<TopStockPerBranchDto> response = franchiseUseCase.findTopStockProductByBranch(idFranchise);
+
+        StepVerifier.create(response)
+                .assertNext(res -> {
+                    assertNotNull(res);
+                    assertEquals(1L, res.getIdbranch());
+                    assertEquals("ChefBurger", res.getBranchname());
+                })
+                .verifyComplete();
+
+        verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
+        verify(franchiseRepository, times(1)).findTopStockProductByBranchForFranchise(anyLong());
+    }
+
+    @Test
+    void findTopStockProductByBranchReturnExceptionWhenFranchiseNotFound() {
+        when(franchiseRepository.findFranchiseById(anyLong())).thenReturn(Mono.empty());
+
+        Flux<TopStockPerBranchDto> response = franchiseUseCase.findTopStockProductByBranch(idFranchise);
+
+        StepVerifier.create(response)
+                .expectError(FranchiseNotFoundException.class)
+                .verify();
+
+        verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
+        verify(franchiseRepository, times(0)).findTopStockProductByBranchForFranchise(anyLong());
     }
 
     @Test
