@@ -1,9 +1,9 @@
 package co.juan.nequi.usecase.franchise;
 
 import co.juan.nequi.dto.TopStockPerBranchDto;
+import co.juan.nequi.exceptions.BusinessException;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
-import co.juan.nequi.exceptions.FranchiseNotFoundException;
 import co.juan.nequi.model.franchise.Franchise;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import co.juan.nequi.model.product.gateways.ProductRepository;
@@ -100,7 +100,7 @@ class FranchiseUseCaseTest {
         Flux<TopStockPerBranchDto> response = franchiseUseCase.findTopStockProductByBranch(idFranchise);
 
         StepVerifier.create(response)
-                .expectError(FranchiseNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
@@ -132,7 +132,7 @@ class FranchiseUseCaseTest {
         Mono<Franchise> response = franchiseUseCase.updateFranchiseName(idFranchise, newName);
 
         StepVerifier.create(response)
-                .expectError(FranchiseNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(franchiseRepository, times(1)).findFranchiseById(anyLong());

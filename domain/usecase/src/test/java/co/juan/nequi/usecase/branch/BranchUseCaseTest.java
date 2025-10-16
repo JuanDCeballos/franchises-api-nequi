@@ -1,9 +1,8 @@
 package co.juan.nequi.usecase.branch;
 
+import co.juan.nequi.exceptions.BusinessException;
 import co.juan.nequi.model.branch.Branch;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
-import co.juan.nequi.exceptions.BranchNotFoundException;
-import co.juan.nequi.exceptions.FranchiseNotFoundException;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,7 +66,7 @@ class BranchUseCaseTest {
         Mono<Branch> response = branchUseCase.saveBranch(branch);
 
         StepVerifier.create(response)
-                .expectError(FranchiseNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(franchiseRepository, times(1)).existsFranchiseById(anyLong());
@@ -99,7 +98,7 @@ class BranchUseCaseTest {
         Mono<Branch> response = branchUseCase.updateBranchName(idBranch, newName);
 
         StepVerifier.create(response)
-                .expectError(BranchNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(branchRepository, times(1)).findBranchById(anyLong());
