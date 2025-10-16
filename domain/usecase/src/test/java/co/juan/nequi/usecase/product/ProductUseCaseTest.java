@@ -1,11 +1,10 @@
 package co.juan.nequi.usecase.product;
 
 import co.juan.nequi.dto.BranchProductDto;
+import co.juan.nequi.exceptions.BusinessException;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
 import co.juan.nequi.model.branchproduct.BranchProduct;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
-import co.juan.nequi.exceptions.BranchNotFoundException;
-import co.juan.nequi.exceptions.ProductNotFoundException;
 import co.juan.nequi.model.product.Product;
 import co.juan.nequi.model.product.gateways.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +92,7 @@ class ProductUseCaseTest {
         Mono<BranchProductDto> response = productUseCase.saveProduct(branchProductDto);
 
         StepVerifier.create(response)
-                .expectError(BranchNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(branchRepository, times(1)).exitsBranchById(anyLong());
@@ -127,7 +126,7 @@ class ProductUseCaseTest {
         Mono<Product> response = productUseCase.updateProductName(idProduct, newName);
 
         StepVerifier.create(response)
-                .expectError(ProductNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(productRepository, times(1)).findProductById(anyLong());
