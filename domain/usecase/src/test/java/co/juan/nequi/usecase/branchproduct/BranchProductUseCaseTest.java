@@ -1,6 +1,6 @@
 package co.juan.nequi.usecase.branchproduct;
 
-import co.juan.nequi.exceptions.BranchProductRelationException;
+import co.juan.nequi.exceptions.BusinessException;
 import co.juan.nequi.model.branchproduct.BranchProduct;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +81,7 @@ class BranchProductUseCaseTest {
         Mono<Void> response = branchProductUseCase.deleteProductFromBranch(idBranch, idProduct);
 
         StepVerifier.create(response)
-                .expectError(BranchProductRelationException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(
@@ -116,7 +116,7 @@ class BranchProductUseCaseTest {
         Mono<BranchProduct> response = branchProductUseCase.updateProductStock(idBranch, idProduct, newStock);
 
         StepVerifier.create(response)
-                .expectError(BranchProductRelationException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(branchProductRepository, times(1)).findRelationByIdBranchAndIdProduct(

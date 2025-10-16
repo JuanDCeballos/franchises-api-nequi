@@ -1,9 +1,6 @@
 package co.juan.nequi.api.exceptionhandler;
 
-import co.juan.nequi.exceptions.BranchNotFoundException;
-import co.juan.nequi.exceptions.BranchProductRelationException;
-import co.juan.nequi.exceptions.FranchiseNotFoundException;
-import co.juan.nequi.exceptions.ProductNotFoundException;
+import co.juan.nequi.exceptions.BusinessException;
 import jakarta.validation.ValidationException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
@@ -35,9 +32,8 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
         if (error instanceof IllegalArgumentException || error instanceof ValidationException
                 || error instanceof ServerWebInputException) {
             return HttpStatus.BAD_REQUEST.value();
-        } else if (error instanceof FranchiseNotFoundException || error instanceof BranchNotFoundException
-                || error instanceof ProductNotFoundException || error instanceof BranchProductRelationException) {
-            return HttpStatus.NOT_FOUND.value();
+        } else if (error instanceof BusinessException businessException) {
+            return businessException.getExceptionMessages().getCode();
         } else if (error instanceof IllegalStateException) {
             return HttpStatus.CONFLICT.value();
         } else if (error instanceof RuntimeException) {

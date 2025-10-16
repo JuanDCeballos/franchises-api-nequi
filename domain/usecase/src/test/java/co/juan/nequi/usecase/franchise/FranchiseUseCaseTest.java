@@ -1,15 +1,11 @@
 package co.juan.nequi.usecase.franchise;
 
 import co.juan.nequi.dto.TopStockPerBranchDto;
-import co.juan.nequi.model.branch.Branch;
+import co.juan.nequi.exceptions.BusinessException;
 import co.juan.nequi.model.branch.gateways.BranchRepository;
-import co.juan.nequi.model.branchproduct.BranchProduct;
 import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
-import co.juan.nequi.exceptions.FranchiseNotFoundException;
-import co.juan.nequi.exceptions.ProductNotFoundException;
 import co.juan.nequi.model.franchise.Franchise;
 import co.juan.nequi.model.franchise.gateways.FranchiseRepository;
-import co.juan.nequi.model.product.Product;
 import co.juan.nequi.model.product.gateways.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,9 +44,7 @@ class FranchiseUseCaseTest {
     private final String newName = "Mi Banco";
 
     private Franchise franchise;
-    private Branch branch;
-    private BranchProduct branchProduct;
-    private Product product;
+    private TopStockPerBranchDto topStockPerBranchDto;
 
     @BeforeEach
     void initMocks() {
@@ -58,20 +52,12 @@ class FranchiseUseCaseTest {
         franchise.setId(1L);
         franchise.setName("MiBanco");
 
-        branch = new Branch();
-        branch.setId(1L);
-        branch.setName("MiBanco - Centro");
-        branch.setIdFranchise(1L);
-
-        branchProduct = new BranchProduct();
-        branchProduct.setId(1L);
-        branchProduct.setIdBranch(1L);
-        branchProduct.setIdProduct(1L);
-        branchProduct.setStock(7L);
-
-        product = new Product();
-        product.setId(1L);
-        product.setName("Pepsi");
+        topStockPerBranchDto = new TopStockPerBranchDto();
+        topStockPerBranchDto.setIdbranch(1L);
+        topStockPerBranchDto.setBranchname("ChefBurger");
+        topStockPerBranchDto.setIdproduct(1L);
+        topStockPerBranchDto.setProductname("Burger");
+        topStockPerBranchDto.setStock(6L);
     }
 
     @Test
@@ -89,63 +75,36 @@ class FranchiseUseCaseTest {
 
     @Test
     void findTopStockProductByBranch() {
-        when(franchiseRepository.existsFranchiseById(anyLong())).thenReturn(Mono.just(true));
-        when(branchRepository.findBranchByIdFranchise(anyLong())).thenReturn(Flux.just(branch));
-        when(branchProductRepository.findTopStockByIdBranch(anyLong())).thenReturn(Mono.just(branchProduct));
-        when(productRepository.findProductById(anyLong())).thenReturn(Mono.just(product));
+        when(franchiseRepository.findFranchiseById(anyLong())).thenReturn(Mono.just(franchise));
+        when(franchiseRepository.findTopStockProductByBranchForFranchise(anyLong()))
+                .thenReturn(Flux.just(topStockPerBranchDto));
 
         Flux<TopStockPerBranchDto> response = franchiseUseCase.findTopStockProductByBranch(idFranchise);
 
         StepVerifier.create(response)
-                .assertNext(fluxRes -> {
-                    assertNotNull(fluxRes);
-                    assertEquals(1L, fluxRes.getIdBranch());
-                    assertEquals("MiBanco - Centro", fluxRes.getBranchName());
-                    assertEquals(1L, fluxRes.getIdProduct());
-                    assertEquals("Pepsi", fluxRes.getProductName());
-                    assertEquals(7L, fluxRes.getStock());
+                .assertNext(res -> {
+                    assertNotNull(res);
+                    assertEquals(1L, res.getIdbranch());
+                    assertEquals("ChefBurger", res.getBranchname());
                 })
                 .verifyComplete();
 
-        verify(franchiseRepository, times(1)).existsFranchiseById(anyLong());
-        verify(branchRepository, times(1)).findBranchByIdFranchise(anyLong());
-        verify(branchProductRepository, times(1)).findTopStockByIdBranch(anyLong());
-        verify(productRepository, times(1)).findProductById(anyLong());
+        verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
+        verify(franchiseRepository, times(1)).findTopStockProductByBranchForFranchise(anyLong());
     }
 
     @Test
     void findTopStockProductByBranchReturnExceptionWhenFranchiseNotFound() {
-        when(franchiseRepository.existsFranchiseById(anyLong())).thenReturn(Mono.just(false));
+        when(franchiseRepository.findFranchiseById(anyLong())).thenReturn(Mono.empty());
 
         Flux<TopStockPerBranchDto> response = franchiseUseCase.findTopStockProductByBranch(idFranchise);
 
         StepVerifier.create(response)
-                .expectError(FranchiseNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
-        verify(franchiseRepository, times(1)).existsFranchiseById(anyLong());
-        verify(branchRepository, times(0)).findBranchByIdFranchise(anyLong());
-        verify(branchProductRepository, times(0)).findTopStockByIdBranch(anyLong());
-        verify(productRepository, times(0)).findProductById(anyLong());
-    }
-
-    @Test
-    void findTopStockProductByBranchReturnExceptionWhenProductNotFound() {
-        when(franchiseRepository.existsFranchiseById(anyLong())).thenReturn(Mono.just(true));
-        when(branchRepository.findBranchByIdFranchise(anyLong())).thenReturn(Flux.just(branch));
-        when(branchProductRepository.findTopStockByIdBranch(anyLong())).thenReturn(Mono.just(branchProduct));
-        when(productRepository.findProductById(anyLong())).thenReturn(Mono.empty());
-
-        Flux<TopStockPerBranchDto> response = franchiseUseCase.findTopStockProductByBranch(idFranchise);
-
-        StepVerifier.create(response)
-                .expectError(ProductNotFoundException.class)
-                .verify();
-
-        verify(franchiseRepository, times(1)).existsFranchiseById(anyLong());
-        verify(branchRepository, times(1)).findBranchByIdFranchise(anyLong());
-        verify(branchProductRepository, times(1)).findTopStockByIdBranch(anyLong());
-        verify(productRepository, times(1)).findProductById(anyLong());
+        verify(franchiseRepository, times(1)).findFranchiseById(anyLong());
+        verify(franchiseRepository, times(0)).findTopStockProductByBranchForFranchise(anyLong());
     }
 
     @Test
@@ -173,7 +132,7 @@ class FranchiseUseCaseTest {
         Mono<Franchise> response = franchiseUseCase.updateFranchiseName(idFranchise, newName);
 
         StepVerifier.create(response)
-                .expectError(FranchiseNotFoundException.class)
+                .expectError(BusinessException.class)
                 .verify();
 
         verify(franchiseRepository, times(1)).findFranchiseById(anyLong());

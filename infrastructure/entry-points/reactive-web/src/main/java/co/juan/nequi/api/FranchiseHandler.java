@@ -6,8 +6,10 @@ import co.juan.nequi.api.dto.franchise.UpdateFranchiseNameRequestDto;
 import co.juan.nequi.api.mapper.FranchiseMapper;
 import co.juan.nequi.api.validation.ValidationService;
 import co.juan.nequi.dto.TopStockPerBranchDto;
+import co.juan.nequi.enums.OperationMessages;
 import co.juan.nequi.usecase.franchise.FranchiseUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -22,6 +24,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.st
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class FranchiseHandler {
 
     private final FranchiseUseCase franchiseUseCase;
@@ -31,8 +34,12 @@ public class FranchiseHandler {
     public Mono<ServerResponse> listenPOSTSaveFranchise(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(FranchiseRequestDto.class)
                 .flatMap(validationService::validateObject)
+                .doOnNext(req ->
+                        log.info(OperationMessages.REQUEST_RECEIVED.getMessage(), req.toString()))
                 .map(franchiseMapper::toFranchise)
                 .flatMap(franchiseUseCase::saveFranchise)
+                .doOnNext(savedFranchise ->
+                        log.info(OperationMessages.ENTITY_SAVED_SUCCESSFULLY.getMessage(), savedFranchise.toBuilder()))
                 .map(franchiseMapper::toFranchiseResponseDto)
                 .flatMap(savedFranchise ->
                         status(201)
@@ -60,8 +67,12 @@ public class FranchiseHandler {
 
         return serverRequest.bodyToMono(UpdateFranchiseNameRequestDto.class)
                 .flatMap(validationService::validateObject)
+                .doOnNext(req ->
+                        log.info(OperationMessages.REQUEST_RECEIVED.getMessage(), req.toString()))
                 .flatMap(validatedDto ->
                         franchiseUseCase.updateFranchiseName(idFranchise, validatedDto.getName()))
+                .doOnNext(updatedFranchise ->
+                        log.info(OperationMessages.ENTITY_UPDATED_SUCCESSFULLY.getMessage(), updatedFranchise.toBuilder()))
                 .flatMap(updatedFranchise ->
                         status(200)
                                 .contentType(MediaType.APPLICATION_JSON)

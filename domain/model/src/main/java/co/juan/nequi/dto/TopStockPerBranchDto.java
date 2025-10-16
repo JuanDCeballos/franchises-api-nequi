@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TopStockPerBranchDto {
 
-    private Long idBranch;
-    private String branchName;
-    private Long idProduct;
-    private String productName;
+    private Long idbranch;
+    private String branchname;
+    private Long idproduct;
+    private String productname;
     private Long stock;
 }
