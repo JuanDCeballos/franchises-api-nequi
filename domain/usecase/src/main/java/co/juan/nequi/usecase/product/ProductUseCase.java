@@ -1,0 +1,59 @@
+package co.juan.nequi.usecase.product;
+
+import co.juan.nequi.dto.BranchProductDto;
+import co.juan.nequi.enums.ExceptionMessages;
+import co.juan.nequi.exceptions.BusinessException;
+import co.juan.nequi.model.branch.gateways.BranchRepository;
+import co.juan.nequi.model.branchproduct.BranchProduct;
+import co.juan.nequi.model.branchproduct.gateways.BranchProductRepository;
+import co.juan.nequi.model.product.Product;
+import co.juan.nequi.model.product.gateways.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
+@RequiredArgsConstructor
+public class ProductUseCase {
+
+    private final ProductRepository productRepository;
+    private final BranchProductRepository branchProductRepository;
+    private final BranchRepository branchRepository;
+
+    public Mono<BranchProductDto> saveProduct(BranchProductDto branchProduct) {
+        return branchRepository.exitsBranchById(branchProduct.getIdBranch())
+                .flatMap(exists -> {
+                    if (Boolean.FALSE.equals(exists)) {
+                        return Mono.error(new BusinessException(ExceptionMessages.PRODUCT_NOT_FOUND));
+                    }
+
+                    Product productToFindOrSave = new Product(null, branchProduct.getName());
+
+                    return productRepository.findProductByName(productToFindOrSave.getName())
+                            .switchIfEmpty(productRepository.saveProduct(productToFindOrSave))
+                            .flatMap(savedProduct -> {
+                                BranchProduct branchProductToSave = new BranchProduct(
+                                        null,
+                                        branchProduct.getIdBranch(),
+                                        savedProduct.getId(),
+                                        branchProduct.getStock());
+
+                                return branchProductRepository.saveBranchProduct(branchProductToSave)
+                                        .map(savedBranchProduct ->
+                                                new BranchProductDto(
+                                                        savedProduct.getId(),
+                                                        savedProduct.getName(),
+                                                        savedBranchProduct.getStock(),
+                                                        savedBranchProduct.getIdBranch()
+                                                ));
+                            });
+                });
+    }
+
+    public Mono<Product> updateProductName(Long idProduct, String newName) {
+        return productRepository.findProductById(idProduct)
+                .switchIfEmpty(Mono.error(new BusinessException(ExceptionMessages.PRODUCT_NOT_FOUND)))
+                .flatMap(productToUpdate -> {
+                    productToUpdate.setName(newName);
+                    return productRepository.saveProduct(productToUpdate);
+                });
+    }
+}
