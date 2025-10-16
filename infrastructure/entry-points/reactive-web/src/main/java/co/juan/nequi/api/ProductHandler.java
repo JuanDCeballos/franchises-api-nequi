@@ -6,9 +6,11 @@ import co.juan.nequi.api.dto.product.UpdateProductNameRequestDto;
 import co.juan.nequi.api.dto.product.UpdateProductStockRequestDto;
 import co.juan.nequi.api.mapper.ProductMapper;
 import co.juan.nequi.api.validation.ValidationService;
+import co.juan.nequi.enums.OperationMessages;
 import co.juan.nequi.usecase.branchproduct.BranchProductUseCase;
 import co.juan.nequi.usecase.product.ProductUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -21,6 +23,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.st
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ProductHandler {
 
     private final ProductUseCase productUseCase;
@@ -31,8 +34,12 @@ public class ProductHandler {
     public Mono<ServerResponse> listenPOSTSaveProduct(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(BranchProductRequestDto.class)
                 .flatMap(validationService::validateObject)
+                .doOnNext(req ->
+                        log.info(OperationMessages.REQUEST_RECEIVED.getMessage(), req.toString()))
                 .map(productMapper::toBranchProduct)
                 .flatMap(productUseCase::saveProduct)
+                .doOnNext(savedProduct ->
+                        log.info(OperationMessages.ENTITY_SAVED_SUCCESSFULLY.getMessage(), savedProduct.toBuilder()))
                 .map(productMapper::toProductResponseDto)
                 .flatMap(savedProduct ->
                         status(201)
@@ -55,8 +62,12 @@ public class ProductHandler {
 
         return serverRequest.bodyToMono(UpdateProductStockRequestDto.class)
                 .flatMap(validationService::validateObject)
+                .doOnNext(req ->
+                        log.info(OperationMessages.REQUEST_RECEIVED.getMessage(), req.toString()))
                 .flatMap(validatedDto ->
                         branchProductUseCase.updateProductStock(idBranch, idProduct, validatedDto.getStock()))
+                .doOnNext(updatedProduct ->
+                        log.info(OperationMessages.ENTITY_UPDATED_SUCCESSFULLY.getMessage(), updatedProduct.toBuilder()))
                 .flatMap(updatedProduct ->
                         status(200)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -69,8 +80,12 @@ public class ProductHandler {
 
         return serverRequest.bodyToMono(UpdateProductNameRequestDto.class)
                 .flatMap(validationService::validateObject)
+                .doOnNext(req ->
+                        log.info(OperationMessages.REQUEST_RECEIVED.getMessage(), req.toString()))
                 .flatMap(validatedDto ->
                         productUseCase.updateProductName(idProduct, validatedDto.getName()))
+                .doOnNext(updatedProduct ->
+                        log.info(OperationMessages.ENTITY_UPDATED_SUCCESSFULLY.getMessage(), updatedProduct.toBuilder()))
                 .flatMap(updatedProduct ->
                         status(200)
                                 .contentType(MediaType.APPLICATION_JSON)
